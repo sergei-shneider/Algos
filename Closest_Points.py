@@ -18,25 +18,42 @@ def minimum_distance_squared_naive(points):
 
 def minimum_distance(points):
   #print(points)
-  #points.sort()
-  return "{0:.9f}".format(mdsRecur(points))
+  points.sort()
+  return "{0:.9f}".format(mdsRecur(points, 0, len(points)-1))
   
 
-def mdsRecur(points):
-  if len(points)==2:
-    return distance_squared(points[0], points[1])
-  midIdx = len(points)//2
-  minD = min(mdsRecur(points[:midIdx+1]), mdsRecur(points[midIdx:]))
-  yPts = []
-  i = 0
-  while i<len(points):
-    if abs(points[i][0]-points[midIdx][0])<minD:
-      yPts.append(points[i])
-    i+=1
-  return closePoints(yPts, minD)
+def mdsRecur(points, start, end):
+  if end-start==1:
+    return distance_squared(points[start], points[end])
+  midIdx = (end+start)//2
+  minD = min(mdsRecur(points, start, midIdx), mdsRecur(points, midIdx, end))
+  return closePoints(points[start:end], minD)
 
 def closePoints(points, minIn):
-  centerEdge = sorted(points, key = lambda x: x[1])
+  mid = len(points)//2
+  findStart = 0
+  findEnd = 0
+  if len(points)==2:
+    return minIn
+  xToMatchSt = points[mid][0]-minIn
+  xToMatchEnd = points[mid][0]+minIn
+  left = mid
+  right = mid
+  while left>0:
+    if points[left][0] < xToMatchSt:
+      findStart = left+1
+      break
+    left-=1
+  while right<len(points):
+    if points[right][0] > xToMatchEnd:
+      findEnd = right-1
+      break
+    right+=1
+  if findEnd+findStart == 0:
+    return minIn
+  if findEnd == 0: 
+    findEnd = right
+  centerEdge = sorted(points[findStart:findEnd+1], key = lambda x: x[1])
   minOut = minIn
   for i in range(0, len(centerEdge)):
     j = i+1
@@ -48,16 +65,44 @@ def closePoints(points, minIn):
       j+=1
   return minOut
 
+# def test_random():
+#     for i in range(25):
+#       points = []
+#       for n in [2, 5, 10, 100]:
+#           for max_value in [1, 2, 3, 1000]:
+              
+#               for _ in range(n):
+#                   x = randint(-max_value, max_value)
+#                   y = randint(-max_value, max_value)
+#                   points.append(Point(x, y))
+#       a = minimum_distance(points)
+#       b = minimum_distance_squared_naive(points)
+#       if  a!=b :
+#         print(points, a, b)
+#         break
+#     print('success')
+def test():
+  while True:
+      nn = int(100)
+      y=[]
+      x=nn*[randint(-50, 50)]
+      for i in range(nn):
+          y.append(randint(-50, 50))
+      pointArr = []
+      for i, j in zip(x, y):
+        pointArr.append([i, j])
+      #print(pointArr)
+      a = minimum_distance(pointArr)
+      b = minimum_distance_squared_naive(pointArr)
+      if a==b:
+          print("OK")
+      else:
+          print("WRONG")
+          print("Array: ", pointArr)
+          print("A: ", a)
+          print("B: ", b)
+          break
 
-if __name__ == '__main__':
-    input = sys.stdin.read()
-    data = list(map(int, input.split()))
-    n = data[0]
-    points = []
-    i=1
-    while i<len(data):
-      point = [data[i], data[i+1]]
-      points.append(point)
-      i+=2
-    points.sort()
-    print(minimum_distance(points))
+
+
+test()
