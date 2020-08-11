@@ -1,0 +1,5 @@
+var kidsWithCandies = function(candies, extraCandies) {
+    if(candies.length<1) return candies;
+    let max = candies.reduce((a,b) => Math.max(a, b));
+    return candies.map(x =>x+extraCandies>=max)
+};
